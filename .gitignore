@@ -4,6 +4,13 @@
 .dart_tool/
 .packages
 build/
+android/
+.idea/
+ios/
+windows/
+linux/
+macos/
+
 # If you're building an application, you may want to check-in your pubspec.lock
 pubspec.lock
 
