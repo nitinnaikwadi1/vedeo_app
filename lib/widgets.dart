@@ -15,7 +15,7 @@ class _BlankScreenState extends State<BlankScreen> {
   var imageData = [];
 
   Future<void> readJsonData() async {
-    final jsonSrc = await rootBundle.loadString('data/gifList.json');
+    final jsonSrc = await rootBundle.loadString('assets/data/gifList.json');
     final list = json.decode(jsonSrc) as List<dynamic>;
     var readJsonData = list.map((e) => Imagelist.fromJson(e)).toList();
 
@@ -38,7 +38,7 @@ class _BlankScreenState extends State<BlankScreen> {
     return Container(
       decoration: BoxDecoration(
           image: DecorationImage(
-              fit: BoxFit.contain, image: AssetImage('/gif/$randomNum.gif'))),
+              fit: BoxFit.contain, image: AssetImage('assets/gif/$randomNum.gif'))),
     );
   }
 }

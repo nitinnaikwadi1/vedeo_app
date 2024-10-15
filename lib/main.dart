@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Future<List<Vedeolist>> readJsonData() async {
-    final jsonSrc = await rootBundle.loadString('data/videoList.json');
+    final jsonSrc = await rootBundle.loadString('assets/data/videoList.json');
     final list = json.decode(jsonSrc) as List<dynamic>;
 
     return list.map((e) => Vedeolist.fromJson(e)).toList();
