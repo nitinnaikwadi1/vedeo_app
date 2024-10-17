@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:vedeo_app/globals.dart';
 import 'package:vedeo_app/widgets.dart';
 import 'package:vedeo_app/functions.dart';
-import 'package:video_player/video_player.dart';
-import 'dart:convert';
 import 'package:vedeo_app/model/vedeo_list.dart';
-import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -30,16 +30,10 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Future<List<Vedeolist>> readJsonData() async {
-    final jsonSrc = await rootBundle.loadString('assets/data/videoList.json');
-    final list = json.decode(jsonSrc) as List<dynamic>;
-
+    var vedeoJsonFromURL = await http.get(
+        Uri.parse("https://nitinnaikwadi1.github.io/vedeobase/videoList.json"));
+    final list = json.decode(vedeoJsonFromURL.body) as List<dynamic>;
     return list.map((e) => Vedeolist.fromJson(e)).toList();
-  }
-
-  @override
-  void initState() {
-    readJsonData();
-    super.initState();
   }
 
   @override

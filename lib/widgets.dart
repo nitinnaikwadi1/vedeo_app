@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:vedeo_app/model/gif_list.dart';
 
 class BlankScreen extends StatefulWidget {
@@ -15,10 +15,10 @@ class _BlankScreenState extends State<BlankScreen> {
   var imageData = [];
 
   Future<void> readJsonData() async {
-    final jsonSrc = await rootBundle.loadString('assets/data/gifList.json');
-    final list = json.decode(jsonSrc) as List<dynamic>;
+    var gifJsonFromURL = await http.get(
+        Uri.parse("https://nitinnaikwadi1.github.io/vedeobase/gifList.json"));
+    final list = json.decode(gifJsonFromURL.body) as List<dynamic>;
     var readJsonData = list.map((e) => Imagelist.fromJson(e)).toList();
-
     setState(() {
       imageData = readJsonData;
     });
@@ -38,7 +38,8 @@ class _BlankScreenState extends State<BlankScreen> {
     return Container(
       decoration: BoxDecoration(
           image: DecorationImage(
-              fit: BoxFit.contain, image: AssetImage('assets/gif/$randomNum.gif'))),
+              fit: BoxFit.contain,
+              image: AssetImage('assets/gif/$randomNum.gif'))),
     );
   }
 }
