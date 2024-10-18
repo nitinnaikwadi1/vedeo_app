@@ -35,12 +35,36 @@ class _BlankScreenState extends State<BlankScreen> {
   @override
   Widget build(BuildContext context) {
     int randomNum = random.nextInt(imageData.length);
+    print(imageData.length);
     return Container(
       decoration: BoxDecoration(
-          image: DecorationImage(
-              fit: BoxFit.contain,
-              image: AssetImage('assets/gif/$randomNum.gif'))),
+        image: DecorationImage(
+            fit: BoxFit.contain,
+            image: NetworkImage(
+                'https://nitinnaikwadi1.github.io/vedeobase/gif/$randomNum.gif')),
+      ),
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: Padding(
+          padding: const EdgeInsets.only(right: 15.0),
+          child: Transform.flip(
+            flipX: true,
+            child: IconButton(
+              icon: Icon(Icons.auto_fix_high),
+              color: Colors.orange,
+              iconSize: 48,
+              onPressed: () {
+                _refreshHomeImage();
+              },
+            ),
+          ),
+        ),
+      ),
     );
+  }
+
+  void _refreshHomeImage() {
+    setState(() {});
   }
 }
 
@@ -57,7 +81,7 @@ class LoadingWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox.square(
-            dimension: 35,
+            dimension: 25,
             child: CircularProgressIndicator(),
           ),
           SizedBox(width: 20),

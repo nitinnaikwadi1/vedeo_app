@@ -104,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 videoFuture.value = play(items[index].url);
                               },
                               child: Container(
-                                height: 200,
+                                height: 140,
                                 width: double.infinity,
                                 decoration: BoxDecoration(
                                     image: DecorationImage(
@@ -118,7 +118,19 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                       );
                     } else {
-                      return CircularProgressIndicator();
+                      return Container(
+                        height: double.infinity,
+                        color: Colors.redAccent,
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox.square(
+                              dimension: 25,
+                              child: CircularProgressIndicator(),
+                            )
+                          ],
+                        ),
+                      );
                     }
                   }
                 }),
