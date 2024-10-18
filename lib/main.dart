@@ -28,10 +28,13 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  ScrollController _scrollController = ScrollController();
+
   Future<List<Vedeolist>> readJsonData() async {
     var vedeoJsonFromURL = await http.get(
         Uri.parse("https://nitinnaikwadi1.github.io/vedeobase/videoList.json"));
     final list = json.decode(vedeoJsonFromURL.body) as List<dynamic>;
+    list.shuffle();
     return list.map((e) => Vedeolist.fromJson(e)).toList();
   }
 
@@ -70,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                           alignment: Alignment.bottomCenter,
                                           children: <Widget>[
                                             VideoPlayer(videoPlayerController),
-                                            _ControlsOverlay(
+                                            ControlsOverlay(
                                                 controller:
                                                     videoPlayerController),
                                             VideoProgressIndicator(
@@ -100,12 +103,20 @@ class _MyHomePageState extends State<MyHomePage> {
                       if (data.hasData) {
                         var items = data.data as List<Vedeolist>;
                         return ListView.builder(
+                          controller: _scrollController,
+                          shrinkWrap: true,
                           itemCount: items.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Card(
                               child: InkWell(
                                 onTap: () {
                                   videoFuture.value = play(items[index].url);
+                                  setState(() {});
+                                  _scrollController.animateTo(
+                                    _scrollController.position.minScrollExtent,
+                                    curve: Curves.easeOut,
+                                    duration: const Duration(milliseconds: 300),
+                                  );
                                 },
                                 child: Container(
                                   height: 140,
@@ -142,81 +153,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ControlsOverlay extends StatelessWidget {
-  const _ControlsOverlay({required this.controller});
-
-  static const List<double> _examplePlaybackRates = <double>[
-    0.5,
-    1.0,
-    1.5,
-    2.0,
-  ];
-
-  final VideoPlayerController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Align(
-          alignment: Alignment.center,
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 50),
-            reverseDuration: const Duration(milliseconds: 200),
-            child: controller.value.isPlaying
-                ? const SizedBox.shrink()
-                : const ColoredBox(
-                    color: Colors.orange,
-                    child: Center(
-                      child: Icon(
-                        Icons.play_arrow,
-                        color: Colors.orange,
-                        size: 100.0,
-                        semanticLabel: 'Play',
-                      ),
-                    ),
-                  ),
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            controller.value.isPlaying ? controller.pause() : controller.play();
-          },
-        ),
-        Align(
-          alignment: Alignment.topRight,
-          child: PopupMenuButton<double>(
-            initialValue: controller.value.playbackSpeed,
-            tooltip: 'Playback speed',
-            onSelected: (double speed) {
-              controller.setPlaybackSpeed(speed);
-            },
-            itemBuilder: (BuildContext context) {
-              return <PopupMenuItem<double>>[
-                for (final double speed in _examplePlaybackRates)
-                  PopupMenuItem<double>(
-                    value: speed,
-                    child: Text('${speed}x'),
-                  )
-              ];
-            },
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                // Using less vertical padding as the text is also longer
-                // horizontally, so it feels like it would need more spacing
-                // horizontally (matching the aspect ratio of the video).
-                vertical: 12,
-                horizontal: 16,
-              ),
-              child: Text('${controller.value.playbackSpeed}x'),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
