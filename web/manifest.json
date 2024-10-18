@@ -1,11 +1,11 @@
 {
-    "name": "vedeo_app",
-    "short_name": "vedeo_app",
+    "name": "watchhere",
+    "short_name": "watchhere",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "watch your content here.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

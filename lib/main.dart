@@ -16,8 +16,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-        debugShowCheckedModeBanner: false, home: MyHomePage());
+    return const MaterialApp(home: MyHomePage());
   }
 }
 
@@ -40,102 +39,108 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Row(
-        children: [
-          Expanded(
-            flex: 80,
-            child: SizedBox(
-              width: double.infinity,
-              child: Center(
-                child: ValueListenableBuilder(
-                  valueListenable: videoFuture,
-                  builder: (context, value, child) {
-                    return AspectRatio(
-                      aspectRatio: 16 / 9,
-                      child: value == null
-                          ? BlankScreen()
-                          : FutureBuilder(
-                              future: value,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.done) {
-                                  return AspectRatio(
-                                      aspectRatio: videoPlayerController
-                                          .value.aspectRatio,
-                                      child: Stack(
-                                        alignment: Alignment.bottomCenter,
-                                        children: <Widget>[
-                                          VideoPlayer(videoPlayerController),
-                                          _ControlsOverlay(
-                                              controller:
-                                                  videoPlayerController),
-                                          VideoProgressIndicator(
-                                              videoPlayerController,
-                                              allowScrubbing: true),
-                                        ],
-                                      ));
-                                } else {
-                                  return const LoadingWidget();
-                                }
-                              },
-                            ),
-                    );
-                  },
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+              fit: BoxFit.cover, image: AssetImage("assets/images/brand.png")),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 80,
+              child: SizedBox(
+                width: double.infinity,
+                child: Center(
+                  child: ValueListenableBuilder(
+                    valueListenable: videoFuture,
+                    builder: (context, value, child) {
+                      return AspectRatio(
+                        aspectRatio: 16 / 9,
+                        child: value == null
+                            ? BlankScreen()
+                            : FutureBuilder(
+                                future: value,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.done) {
+                                    return AspectRatio(
+                                        aspectRatio: videoPlayerController
+                                            .value.aspectRatio,
+                                        child: Stack(
+                                          alignment: Alignment.bottomCenter,
+                                          children: <Widget>[
+                                            VideoPlayer(videoPlayerController),
+                                            _ControlsOverlay(
+                                                controller:
+                                                    videoPlayerController),
+                                            VideoProgressIndicator(
+                                                videoPlayerController,
+                                                allowScrubbing: true),
+                                          ],
+                                        ));
+                                  } else {
+                                    return const LoadingWidget();
+                                  }
+                                },
+                              ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-          Expanded(
-            flex: 20,
-            child: FutureBuilder(
-                future: readJsonData(),
-                builder: (context, data) {
-                  if (data.hasError) {
-                    return Center(child: Text('${data.error}'));
-                  } else {
-                    if (data.hasData) {
-                      var items = data.data as List<Vedeolist>;
-                      return ListView.builder(
-                        itemCount: items.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Card(
-                            child: InkWell(
-                              onTap: () {
-                                videoFuture.value = play(items[index].url);
-                              },
-                              child: Container(
-                                height: 140,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                    image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: NetworkImage(
-                                            items[index].thumb.toString()))),
-                                alignment: Alignment.center,
-                              ),
-                            ),
-                          );
-                        },
-                      );
+            Expanded(
+              flex: 20,
+              child: FutureBuilder(
+                  future: readJsonData(),
+                  builder: (context, data) {
+                    if (data.hasError) {
+                      return Center(child: Text('${data.error}'));
                     } else {
-                      return Container(
-                        height: double.infinity,
-                        color: Colors.redAccent,
-                        child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox.square(
-                              dimension: 25,
-                              child: CircularProgressIndicator(),
-                            )
-                          ],
-                        ),
-                      );
+                      if (data.hasData) {
+                        var items = data.data as List<Vedeolist>;
+                        return ListView.builder(
+                          itemCount: items.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Card(
+                              child: InkWell(
+                                onTap: () {
+                                  videoFuture.value = play(items[index].url);
+                                },
+                                child: Container(
+                                  height: 140,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: NetworkImage(
+                                              items[index].thumb.toString()))),
+                                  alignment: Alignment.center,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      } else {
+                        return Container(
+                          height: double.infinity,
+                          color: Colors.redAccent,
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox.square(
+                                dimension: 25,
+                                child: CircularProgressIndicator(),
+                              )
+                            ],
+                          ),
+                        );
+                      }
                     }
-                  }
-                }),
-          ),
-        ],
+                  }),
+            ),
+          ],
+        ),
       ),
     );
   }
