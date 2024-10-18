@@ -108,6 +108,11 @@ class _MyHomePageState extends State<MyHomePage> {
                           itemCount: items.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Card(
+                              elevation: 2,
+                              clipBehavior: Clip.hardEdge,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
                               child: InkWell(
                                 onTap: () {
                                   videoFuture.value = play(items[index].url);
@@ -115,7 +120,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                   _scrollController.animateTo(
                                     _scrollController.position.minScrollExtent,
                                     curve: Curves.easeOut,
-                                    duration: const Duration(milliseconds: 300),
+                                    duration: const Duration(milliseconds: 400),
                                   );
                                 },
                                 child: Container(
