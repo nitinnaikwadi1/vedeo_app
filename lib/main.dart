@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:flutter/services.dart';
 import 'package:vedeo_app/globals.dart';
 import 'package:vedeo_app/widgets.dart';
 import 'package:vedeo_app/functions.dart';
@@ -36,6 +37,15 @@ class _MyHomePageState extends State<MyHomePage> {
     final list = json.decode(vedeoJsonFromURL.body) as List<dynamic>;
     list.shuffle();
     return list.map((e) => Vedeolist.fromJson(e)).toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
   }
 
   @override

@@ -2,7 +2,6 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
 import 'package:video_player/video_player.dart';
 import 'package:vedeo_app/model/gif_list.dart';
 
