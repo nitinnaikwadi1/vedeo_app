@@ -2,7 +2,7 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:video_player/video_player.dart';
+//import 'package:video_player/video_player.dart';
 import 'package:vedeo_app/model/gif_list.dart';
 
 class BlankScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _BlankScreenState extends State<BlankScreen> {
 
   Future<void> readJsonData() async {
     var gifJsonFromURL = await http.get(
-        Uri.parse("https://nitinnaikwadi1.github.io/vedeobase/gifList.json"));
+        Uri.parse("https://nitinnaikwadi1.github.io/vedeobase/data/vedeo_app_landing_gif_list.json"));
     final list = json.decode(gifJsonFromURL.body) as List<dynamic>;
     var readJsonData = list.map((e) => Imagelist.fromJson(e)).toList();
     setState(() {
@@ -42,7 +42,7 @@ class _BlankScreenState extends State<BlankScreen> {
         image: DecorationImage(
             fit: BoxFit.contain,
             image: NetworkImage(
-                'https://nitinnaikwadi1.github.io/vedeobase/gif/$randomNum.gif')),
+                'https://nitinnaikwadi1.github.io/vedeobase/images/vedeo_app_landing/$randomNum.gif')),
       ),
       child: Align(
         alignment: Alignment.bottomRight,
@@ -99,6 +99,7 @@ class LoadingWidget extends StatelessWidget {
   }
 }
 
+/*
 class ControlsOverlay extends StatelessWidget {
   const ControlsOverlay({required this.controller});
 
@@ -173,3 +174,4 @@ class ControlsOverlay extends StatelessWidget {
     );
   }
 }
+*/

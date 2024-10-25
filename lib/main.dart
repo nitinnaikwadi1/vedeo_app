@@ -33,7 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<List<Vedeolist>> readJsonData() async {
     var vedeoJsonFromURL = await http.get(
-        Uri.parse("https://nitinnaikwadi1.github.io/vedeobase/videoList.json"));
+        Uri.parse("https://nitinnaikwadi1.github.io/vedeobase/data/vedeo_app_videos_list.json"));
     final list = json.decode(vedeoJsonFromURL.body) as List<dynamic>;
     list.shuffle();
     return list.map((e) => Vedeolist.fromJson(e)).toList();
@@ -84,9 +84,9 @@ class _MyHomePageState extends State<MyHomePage> {
                                           alignment: Alignment.bottomCenter,
                                           children: <Widget>[
                                             VideoPlayer(videoPlayerController),
-                                            ControlsOverlay(
+                                            /*ControlsOverlay(
                                                 controller:
-                                                    videoPlayerController),
+                                                    videoPlayerController),*/
                                             VideoProgressIndicator(
                                                 videoPlayerController,
                                                 allowScrubbing: true),
