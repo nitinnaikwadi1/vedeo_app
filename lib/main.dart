@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter/services.dart';
 import 'package:vedeo_app/globals.dart';
 import 'package:vedeo_app/widgets.dart';
 import 'package:vedeo_app/functions.dart';
@@ -30,23 +29,33 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   ScrollController _scrollController = ScrollController();
+  String randomAnimalFrameData = '';
 
   Future<List<Vedeolist>> readJsonData() async {
-    var vedeoJsonFromURL = await http.get(
-        Uri.parse("https://nitinnaikwadi1.github.io/vedeobase/data/vedeo_app_videos_list.json"));
+    var vedeoJsonFromURL = await http.get(Uri.parse(
+        "https://nitinnaikwadi1.github.io/vedeobase/data/vedeo_app/vedeo_app_videos_list.json"));
+
     final list = json.decode(vedeoJsonFromURL.body) as List<dynamic>;
     list.shuffle();
     return list.map((e) => Vedeolist.fromJson(e)).toList();
   }
 
+  Future<void> randomAnimalsFramesData() async {
+    var randomAnimalFramesJsonFromURL = await http.get(Uri.parse(
+        "https://nitinnaikwadi1.github.io/vedeobase/data/vedeo_app/vedeo_app_random_animals_frames_gif_list.json"));
+    var randomAnimalsFramesList =
+        json.decode(randomAnimalFramesJsonFromURL.body) as List<dynamic>;
+    randomAnimalsFramesList.shuffle();
+
+    setState(() {
+      randomAnimalFrameData = randomAnimalsFramesList[0]['url'];
+    });
+  }
+
   @override
   void initState() {
+    randomAnimalsFramesData();
     super.initState();
-    WidgetsFlutterBinding.ensureInitialized();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-    ]);
   }
 
   @override
@@ -56,51 +65,67 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-              fit: BoxFit.cover, image: AssetImage("assets/images/brand.png")),
+              fit: BoxFit.cover, image: AssetImage("assets/images/brand.jpg")),
         ),
         child: Row(
           children: [
             Expanded(
               flex: 80,
-              child: SizedBox(
-                width: double.infinity,
-                child: Center(
-                  child: ValueListenableBuilder(
-                    valueListenable: videoFuture,
-                    builder: (context, value, child) {
-                      return AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: value == null
-                            ? BlankScreen()
-                            : FutureBuilder(
-                                future: value,
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.done) {
-                                    return AspectRatio(
-                                        aspectRatio: videoPlayerController
-                                            .value.aspectRatio,
-                                        child: Stack(
-                                          alignment: Alignment.bottomCenter,
-                                          children: <Widget>[
-                                            VideoPlayer(videoPlayerController),
-                                            /*ControlsOverlay(
-                                                controller:
-                                                    videoPlayerController),*/
-                                            VideoProgressIndicator(
-                                                videoPlayerController,
-                                                allowScrubbing: true),
-                                          ],
-                                        ));
-                                  } else {
-                                    return const LoadingWidget();
-                                  }
-                                },
-                              ),
-                      );
-                    },
+              child: Stack(
+                children: <Widget>[
+                  SizedBox(
+                    width: double.infinity,
+                    child: Center(
+                      child: ValueListenableBuilder(
+                        valueListenable: videoFuture,
+                        builder: (context, value, child) {
+                          return AspectRatio(
+                            aspectRatio: 16 / 9,
+                            child: value == null
+                                ? BlankScreen()
+                                : FutureBuilder(
+                                    future: value,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.done) {
+                                        return AspectRatio(
+                                            aspectRatio: videoPlayerController
+                                                .value.aspectRatio,
+                                            child: Stack(
+                                              alignment: Alignment.bottomCenter,
+                                              children: <Widget>[
+                                                VideoPlayer(
+                                                    videoPlayerController),
+                                                ControlsOverlay(
+                                                    controller:
+                                                        videoPlayerController),
+                                                VideoProgressIndicator(
+                                                    videoPlayerController,
+                                                    allowScrubbing: true),
+                                              ],
+                                            ));
+                                      } else {
+                                        return const LoadingWidget();
+                                      }
+                                    },
+                                  ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
-                ),
+                  randomAnimalFrameData == ''
+                      ? LoadingWidget()
+                      : Align(
+                          alignment: Alignment.bottomLeft,
+                          child: SizedBox(
+                            width: 198,
+                            child: Image.network(
+                              'https://nitinnaikwadi1.github.io/vedeobase/images/vedeo_app/random_animals_frames/$randomAnimalFrameData',
+                            ),
+                          ),
+                        ),
+                ],
               ),
             ),
             Expanded(
