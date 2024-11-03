@@ -1,6 +1,6 @@
 # vedeo_app
 
-A new Flutter project.
+A vedeo selection to view
 
 ## github pages deployable
 
