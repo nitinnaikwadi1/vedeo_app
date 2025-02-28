@@ -70,7 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Row(
           children: [
             Expanded(
-              flex: 80,
+              flex: 83,
               child: Stack(
                 children: <Widget>[
                   SizedBox(
@@ -129,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Expanded(
-              flex: 20,
+              flex: 17,
               child: FutureBuilder(
                   future: readJsonData(),
                   builder: (context, data) {
