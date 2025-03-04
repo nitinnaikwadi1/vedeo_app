@@ -6,6 +6,7 @@ import 'package:vedeo_app/globals.dart';
 import 'package:vedeo_app/widgets.dart';
 import 'package:vedeo_app/functions.dart';
 import 'package:vedeo_app/model/vedeo_list.dart';
+import 'package:vedeo_app/properties/app_constants.dart' as properties;
 
 void main() {
   runApp(MyApp());
@@ -32,8 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String randomAnimalFrameData = '';
 
   Future<List<Vedeolist>> readJsonData() async {
-    var vedeoJsonFromURL = await http.get(Uri.parse(
-        "https://nitinnaikwadi1.github.io/vedeobase/data/vedeo_app/vedeo_app_videos_list.json"));
+    var vedeoJsonFromURL =
+        await http.get(Uri.parse(properties.vedeoAppVideoDataUrl));
 
     final list = json.decode(vedeoJsonFromURL.body) as List<dynamic>;
     list.shuffle();
@@ -41,8 +42,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> randomAnimalsFramesData() async {
-    var randomAnimalFramesJsonFromURL = await http.get(Uri.parse(
-        "https://nitinnaikwadi1.github.io/vedeobase/data/vedeo_app/vedeo_app_random_animals_frames_gif_list.json"));
+    var randomAnimalFramesJsonFromURL =
+        await http.get(Uri.parse(properties.vedeoAppRandomAnimalsDataUrl));
     var randomAnimalsFramesList =
         json.decode(randomAnimalFramesJsonFromURL.body) as List<dynamic>;
     randomAnimalsFramesList.shuffle();
@@ -65,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-              fit: BoxFit.cover, image: AssetImage("assets/images/brand.jpg")),
+              fit: BoxFit.cover, image: AssetImage(properties.vedeoAppDashboardBackgcUrl)),
         ),
         child: Row(
           children: [
@@ -121,7 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: SizedBox(
                             width: 198,
                             child: Image.network(
-                              'https://nitinnaikwadi1.github.io/vedeobase/images/vedeo_app/random_animals_frames/$randomAnimalFrameData',
+                              "${properties.vedeoAppAnimalFramesUrl}$randomAnimalFrameData",
                             ),
                           ),
                         ),
@@ -130,66 +131,73 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               flex: 17,
-              child: FutureBuilder(
-                  future: readJsonData(),
-                  builder: (context, data) {
-                    if (data.hasError) {
-                      return Center(child: Text('${data.error}'));
-                    } else {
-                      if (data.hasData) {
-                        var items = data.data as List<Vedeolist>;
-                        return ListView.builder(
-                          controller: _scrollController,
-                          shrinkWrap: true,
-                          itemCount: items.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Card(
-                              elevation: 2,
-                              clipBehavior: Clip.hardEdge,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: InkWell(
-                                onTap: () {
-                                  videoFuture.value = play(items[index].url);
-                                  setState(() {});
-                                  _scrollController.animateTo(
-                                    _scrollController.position.minScrollExtent,
-                                    curve: Curves.easeOut,
-                                    duration: const Duration(milliseconds: 400),
-                                  );
-                                },
-                                child: Container(
-                                  height: 140,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                      image: DecorationImage(
-                                          fit: BoxFit.cover,
-                                          image: NetworkImage(
-                                              items[index].thumb.toString()))),
-                                  alignment: Alignment.center,
-                                ),
-                              ),
-                            );
-                          },
-                        );
+              child: AnimatedOpacity(
+                opacity: 0.7,
+                duration: const Duration(milliseconds: 500),
+                child: FutureBuilder(
+                    future: readJsonData(),
+                    builder: (context, data) {
+                      if (data.hasError) {
+                        return Center(child: Text('${data.error}'));
                       } else {
-                        return Container(
-                          height: double.infinity,
-                          color: Colors.redAccent,
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox.square(
-                                dimension: 25,
-                                child: CircularProgressIndicator(),
-                              )
-                            ],
-                          ),
-                        );
+                        if (data.hasData) {
+                          var items = data.data as List<Vedeolist>;
+                          return ListView.builder(
+                            controller: _scrollController,
+                            shrinkWrap: true,
+                            itemCount: items.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                elevation: 2,
+                                clipBehavior: Clip.hardEdge,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    videoFuture.value = play(items[index].url);
+                                    setState(() {});
+                                    _scrollController.animateTo(
+                                      _scrollController
+                                          .position.minScrollExtent,
+                                      curve: Curves.easeOut,
+                                      duration:
+                                          const Duration(milliseconds: 400),
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 140,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: NetworkImage(items[index]
+                                                .thumb
+                                                .toString()))),
+                                    alignment: Alignment.center,
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                        } else {
+                          return Container(
+                            height: double.infinity,
+                            color: Colors.redAccent,
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox.square(
+                                  dimension: 25,
+                                  child: CircularProgressIndicator(),
+                                )
+                              ],
+                            ),
+                          );
+                        }
                       }
-                    }
-                  }),
+                    }),
+              ),
             ),
           ],
         ),
