@@ -1,5 +1,5 @@
-import 'package:video_player/video_player.dart';
 import 'package:vedeo_app/globals.dart';
+import 'package:video_player/video_player.dart';
 
 Future<void> play(String url) async {
   if (url.isEmpty) return;

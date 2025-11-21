@@ -1,12 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:http/http.dart' as http;
-import 'package:vedeo_app/globals.dart';
-import 'package:vedeo_app/widgets.dart';
 import 'package:vedeo_app/functions.dart';
+import 'package:vedeo_app/globals.dart';
 import 'package:vedeo_app/model/vedeo_list.dart';
 import 'package:vedeo_app/properties/app_constants.dart' as properties;
+import 'package:vedeo_app/widgets.dart';
+import 'package:video_player/video_player.dart';
+import 'package:gif/gif.dart';
 
 void main() {
   runApp(MyApp());
@@ -28,9 +31,12 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   ScrollController _scrollController = ScrollController();
-  String randomAnimalFrameData = '';
+  String headerGifImage = 'baloons.gif';
+  String footerGifImage = 'aligator_bird.gif';
+
+  late final GifController _gifController;
 
   Future<List<Vedeolist>> readJsonData() async {
     var vedeoJsonFromURL =
@@ -41,22 +47,11 @@ class _MyHomePageState extends State<MyHomePage> {
     return list.map((e) => Vedeolist.fromJson(e)).toList();
   }
 
-  Future<void> randomAnimalsFramesData() async {
-    var randomAnimalFramesJsonFromURL =
-        await http.get(Uri.parse(properties.vedeoAppRandomAnimalsDataUrl));
-    var randomAnimalsFramesList =
-        json.decode(randomAnimalFramesJsonFromURL.body) as List<dynamic>;
-    randomAnimalsFramesList.shuffle();
-
-    setState(() {
-      randomAnimalFrameData = randomAnimalsFramesList[0]['url'];
-    });
-  }
-
   @override
   void initState() {
-    randomAnimalsFramesData();
     super.initState();
+
+    _gifController = GifController(vsync: this);
   }
 
   @override
@@ -66,7 +61,8 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-              fit: BoxFit.cover, image: AssetImage(properties.vedeoAppDashboardBackgcUrl)),
+              fit: BoxFit.cover,
+              image: AssetImage(properties.vedeoAppDashboardBackgcUrl)),
         ),
         child: Row(
           children: [
@@ -74,6 +70,44 @@ class _MyHomePageState extends State<MyHomePage> {
               flex: 83,
               child: Stack(
                 children: <Widget>[
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: SizedBox(
+                      width: 198,
+                      child: Gif(
+                        autostart: Autostart.loop,
+                        image: NetworkImage(
+                          "${properties.vedeoAppAnimalFramesUrl}$headerGifImage",
+                        ),
+                        fit: BoxFit.contain,
+                        controller: _gifController,
+                        useCache: true,
+                        onFetchCompleted: () {
+                          _gifController.reset();
+                          _gifController.forward();
+                        },
+                      ),
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: SizedBox(
+                      width: 275,
+                      child: Gif(
+                        autostart: Autostart.loop,
+                        image: NetworkImage(
+                          "${properties.vedeoAppAnimalFramesUrl}$footerGifImage",
+                        ),
+                        fit: BoxFit.contain,
+                        controller: _gifController,
+                        useCache: true,
+                        onFetchCompleted: () {
+                          _gifController.reset();
+                          _gifController.forward();
+                        },
+                      ),
+                    ),
+                  ),
                   SizedBox(
                     width: double.infinity,
                     child: Center(
@@ -115,17 +149,6 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ),
                   ),
-                  randomAnimalFrameData == ''
-                      ? LoadingWidget()
-                      : Align(
-                          alignment: Alignment.bottomLeft,
-                          child: SizedBox(
-                            width: 198,
-                            child: Image.network(
-                              "${properties.vedeoAppAnimalFramesUrl}$randomAnimalFrameData",
-                            ),
-                          ),
-                        ),
                 ],
               ),
             ),
@@ -133,7 +156,7 @@ class _MyHomePageState extends State<MyHomePage> {
               flex: 17,
               child: AnimatedOpacity(
                 opacity: 0.7,
-                duration: const Duration(milliseconds: 500),
+                duration: const Duration(milliseconds: 365),
                 child: FutureBuilder(
                     future: readJsonData(),
                     builder: (context, data) {
@@ -147,34 +170,46 @@ class _MyHomePageState extends State<MyHomePage> {
                             shrinkWrap: true,
                             itemCount: items.length,
                             itemBuilder: (BuildContext context, int index) {
-                              return Card(
-                                elevation: 2,
-                                clipBehavior: Clip.hardEdge,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    videoFuture.value = play(items[index].url);
-                                    setState(() {});
-                                    _scrollController.animateTo(
-                                      _scrollController
-                                          .position.minScrollExtent,
-                                      curve: Curves.easeOut,
-                                      duration:
-                                          const Duration(milliseconds: 400),
-                                    );
-                                  },
-                                  child: Container(
-                                    height: 140,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: NetworkImage(items[index]
-                                                .thumb
-                                                .toString()))),
-                                    alignment: Alignment.center,
+                              return AnimationConfiguration.staggeredGrid(
+                                position: index,
+                                duration: const Duration(milliseconds: 100),
+                                columnCount: items.length,
+                                child: ScaleAnimation(
+                                  child: FadeInAnimation(
+                                    child: Card(
+                                      elevation: 2,
+                                      clipBehavior: Clip.hardEdge,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10.0),
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          videoFuture.value =
+                                              play(items[index].url);
+                                          setState(() {});
+                                          _scrollController.animateTo(
+                                            _scrollController
+                                                .position.minScrollExtent,
+                                            curve: Curves.easeOut,
+                                            duration: const Duration(
+                                                milliseconds: 400),
+                                          );
+                                        },
+                                        child: Container(
+                                          height: 140,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                              image: DecorationImage(
+                                                  fit: BoxFit.cover,
+                                                  image: NetworkImage(
+                                                      items[index]
+                                                          .thumb
+                                                          .toString()))),
+                                          alignment: Alignment.center,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               );

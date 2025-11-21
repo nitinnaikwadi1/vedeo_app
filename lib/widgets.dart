@@ -1,10 +1,11 @@
-import 'dart:math';
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:video_player/video_player.dart';
+import 'package:loading_indicator/loading_indicator.dart';
 import 'package:vedeo_app/model/gif_list.dart';
 import 'package:vedeo_app/properties/app_constants.dart' as properties;
+import 'package:video_player/video_player.dart';
 
 class BlankScreen extends StatefulWidget {
   const BlankScreen({super.key});
@@ -14,15 +15,17 @@ class BlankScreen extends StatefulWidget {
 }
 
 class _BlankScreenState extends State<BlankScreen> {
-  var imageData = [];
+  String contentBackgImage = '';
 
   Future<void> readJsonData() async {
-    var gifJsonFromURL = await http.get(
-        Uri.parse(properties.vedeoAppLandingFramesDataUrl));
+    var gifJsonFromURL =
+        await http.get(Uri.parse(properties.vedeoAppLandingFramesDataUrl));
     final list = json.decode(gifJsonFromURL.body) as List<dynamic>;
     var readJsonData = list.map((e) => Imagelist.fromJson(e)).toList();
+    readJsonData.shuffle();
+
     setState(() {
-      imageData = readJsonData;
+      contentBackgImage = readJsonData[0].url;
     });
   }
 
@@ -32,40 +35,24 @@ class _BlankScreenState extends State<BlankScreen> {
     super.initState();
   }
 
-  final random = Random();
-
   @override
   Widget build(BuildContext context) {
-    int randomNum = random.nextInt(imageData.length);
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-            fit: BoxFit.contain,
-            image: NetworkImage(
-                "${properties.vedeoAppLandingFrameUrl}$randomNum.gif")),
-      ),
-      child: Align(
-        alignment: Alignment.bottomRight,
-        child: Padding(
-          padding: const EdgeInsets.only(right: 15.0),
-          child: Transform.flip(
-            flipX: true,
-            child: IconButton(
-              icon: Icon(Icons.auto_fix_high),
-              color: Colors.orange,
-              iconSize: 48,
-              onPressed: () {
-                _reloadLandingFrame();
-              },
+    return contentBackgImage == ''
+        ? LoadingIndicator(
+            colors: properties.kDefaultRainbowColors,
+            indicatorType: Indicator.ballRotate,
+            strokeWidth: 3,
+            pause: false,
+          )
+        : Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.contain,
+                image: NetworkImage(
+                    "${properties.vedeoAppLandingFrameUrl}$contentBackgImage"),
+              ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _reloadLandingFrame() {
-    setState(() {});
+          );
   }
 }
 
@@ -77,13 +64,18 @@ class LoadingWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.orange,
+      color: Colors.pink,
       child: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox.square(
-            dimension: 25,
-            child: CircularProgressIndicator(),
+            dimension: 120,
+            child: LoadingIndicator(
+              colors: properties.kDefaultRainbowColors,
+              indicatorType: Indicator.pacman,
+              strokeWidth: 3,
+              pause: false,
+            ),
           ),
           SizedBox(width: 20),
           Text(
