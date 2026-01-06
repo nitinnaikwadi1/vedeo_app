@@ -18,14 +18,21 @@ class _BlankScreenState extends State<BlankScreen> {
   String contentBackgImage = '';
 
   Future<void> readJsonData() async {
-    var gifJsonFromURL =
-        await http.get(Uri.parse(properties.vedeoAppLandingFramesDataUrl));
+    final isMorning =
+        (DateTime.now().hour >= 5 && DateTime.now().hour < 20) ? true : false;
+
+    var gifJsonFromURL = await http.get(Uri.parse(isMorning
+        ? properties.dayLandingFramesDataUrl
+        : properties.nightLandingFramesDataUrl));
+        
     final list = json.decode(gifJsonFromURL.body) as List<dynamic>;
     var readJsonData = list.map((e) => Imagelist.fromJson(e)).toList();
     readJsonData.shuffle();
 
     setState(() {
-      contentBackgImage = readJsonData[0].url;
+      contentBackgImage = isMorning
+          ? "${properties.dayLandingFrameUrl}${readJsonData[0].url}"
+          : "${properties.nightLandingFrameUrl}${readJsonData[0].url}";
     });
   }
 
@@ -48,8 +55,7 @@ class _BlankScreenState extends State<BlankScreen> {
             decoration: BoxDecoration(
               image: DecorationImage(
                 fit: BoxFit.contain,
-                image: NetworkImage(
-                    "${properties.vedeoAppLandingFrameUrl}$contentBackgImage"),
+                image: NetworkImage(contentBackgImage),
               ),
             ),
           );

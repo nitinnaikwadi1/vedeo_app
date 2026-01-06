@@ -34,23 +34,43 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   ScrollController _scrollController = ScrollController();
   String headerGifImage = 'baloons.gif';
-  String footerGifImage = 'aligator_bird.gif';
+  String footerGifImage = 'sparrow_branch.gif';
+  String appBackgImage = '';
 
   late final GifController _gifController;
 
   Future<List<Vedeolist>> readJsonData() async {
-    var vedeoJsonFromURL =
-        await http.get(Uri.parse(properties.vedeoAppVideoDataUrl));
+    final isMorning =
+        (DateTime.now().hour >= 5 && DateTime.now().hour < 20) ? true : false;
+
+    var vedeoJsonFromURL = await http.get(Uri.parse(isMorning
+        ? properties.dayVideosDataUrl
+        : properties.nightVideosDataUrl));
 
     final list = json.decode(vedeoJsonFromURL.body) as List<dynamic>;
     list.shuffle();
     return list.map((e) => Vedeolist.fromJson(e)).toList();
   }
 
+  Future<void> setAppBackThemeImg() async {
+    final isMorning =
+        (DateTime.now().hour >= 5 && DateTime.now().hour < 20) ? true : false;
+
+    // set random background from the list * dayBackgList / nightBackgList
+    properties.dayBackgList.shuffle();
+    properties.nightBackgList.shuffle();
+    
+    setState(() {
+      appBackgImage = isMorning
+          ? '${properties.dayDashboardBackgcUrl}${properties.dayBackgList[0]}'
+          : '${properties.nightDashboardBackgcUrl}${properties.nightBackgList[0]}';
+    });
+  }
+
   @override
   void initState() {
     super.initState();
-
+    setAppBackThemeImg();
     _gifController = GifController(vsync: this);
   }
 
@@ -61,8 +81,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-              fit: BoxFit.cover,
-              image: AssetImage(properties.vedeoAppDashboardBackgcUrl)),
+              fit: BoxFit.cover, image: AssetImage(appBackgImage)),
         ),
         child: Row(
           children: [
