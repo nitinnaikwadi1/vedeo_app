@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:vedeo_app/globals.dart';
 
 const String allDataBaseUrl = "https://nitinnaikwadi1.github.io/vedeobase/";
 
 //test other deployment options
 //const String allDataBaseUrl = "https://vedeobase.vercel.app/";
 //const String allDataBaseUrl = "https://venerable-genie-708e01.netlify.app/";
-
 
 const String dayVideosDataUrl = "${allDataBaseUrl}data/vedeo_app/vedeo_app_day_videos_list.json";
 
@@ -29,6 +29,20 @@ const String dayLandingFrameUrl = "${allDataBaseUrl}images/vedeo_app/landing_day
 
 const String nightLandingFrameUrl = "${allDataBaseUrl}images/vedeo_app/landing_night/";
 
+const String headerGifImage = "${vedeoAppAnimalFramesUrl}kite_fly.gif";
+
+const String footerGifImage = "${vedeoAppAnimalFramesUrl}celebration.gif";
+
+// theme indicator flag
+final isMorning = (DateTime.now().hour >= 5 && DateTime.now().hour < 20) ? true : false;
+
+// surprise feature media - these properties are conditional and used occasionally
+final int isSurpriseDate = daysBetweenDateRange(DateTime(2026, 1, 17), DateTime.now());
+const String surpriseDayMedia = "${vedeoAppAssetBase}surprise/bday_day.gif";
+const String surpriseNightMedia = "${vedeoAppAssetBase}surprise/bday_night.gif";
+const String surpriseTuneAudio = "assets/audio/surprise_tune_birthday.mp3";
+const String surpriseCloseButton = "${vedeoAppAssetBase}surprise/close_button.gif";
+const String surpriseGifImage = "${vedeoAppAnimalFramesUrl}surprise_button.gif";
 
 const List<Color> kDefaultRainbowColors = [
   Colors.yellow,

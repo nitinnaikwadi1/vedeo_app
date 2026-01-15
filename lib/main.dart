@@ -10,6 +10,7 @@ import 'package:vedeo_app/properties/app_constants.dart' as properties;
 import 'package:vedeo_app/widgets.dart';
 import 'package:video_player/video_player.dart';
 import 'package:gif/gif.dart';
+import 'package:vedeo_app/surprise_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -33,17 +34,16 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   ScrollController _scrollController = ScrollController();
-  String headerGifImage = 'baloons.gif';
-  String footerGifImage = 'sparrow_branch.gif';
+
   String appBackgImage = '';
+
+  // initializing non 0 - reason being it is used in date comparison which returns 0 on match
+  bool isSurpriseSeen = false;
 
   late final GifController _gifController;
 
   Future<List<Vedeolist>> readJsonData() async {
-    final isMorning =
-        (DateTime.now().hour >= 5 && DateTime.now().hour < 20) ? true : false;
-
-    var vedeoJsonFromURL = await http.get(Uri.parse(isMorning
+    var vedeoJsonFromURL = await http.get(Uri.parse(properties.isMorning
         ? properties.dayVideosDataUrl
         : properties.nightVideosDataUrl));
 
@@ -53,15 +53,12 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   }
 
   Future<void> setAppBackThemeImg() async {
-    final isMorning =
-        (DateTime.now().hour >= 5 && DateTime.now().hour < 20) ? true : false;
-
     // set random background from the list * dayBackgList / nightBackgList
     properties.dayBackgList.shuffle();
     properties.nightBackgList.shuffle();
-    
+
     setState(() {
-      appBackgImage = isMorning
+      appBackgImage = properties.isMorning
           ? '${properties.dayDashboardBackgcUrl}${properties.dayBackgList[0]}'
           : '${properties.nightDashboardBackgcUrl}${properties.nightBackgList[0]}';
     });
@@ -81,7 +78,9 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-              fit: BoxFit.cover, image: AssetImage(appBackgImage)),
+            fit: BoxFit.cover,
+            image: AssetImage(appBackgImage),
+          ),
         ),
         child: Row(
           children: [
@@ -96,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       child: Gif(
                         autostart: Autostart.loop,
                         image: NetworkImage(
-                          "${properties.vedeoAppAnimalFramesUrl}$headerGifImage",
+                          properties.headerGifImage,
                         ),
                         fit: BoxFit.contain,
                         controller: _gifController,
@@ -115,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                       child: Gif(
                         autostart: Autostart.loop,
                         image: NetworkImage(
-                          "${properties.vedeoAppAnimalFramesUrl}$footerGifImage",
+                          properties.footerGifImage,
                         ),
                         fit: BoxFit.contain,
                         controller: _gifController,
@@ -124,6 +123,39 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                           _gifController.reset();
                           _gifController.forward();
                         },
+                      ),
+                    ),
+                  ),
+                  Visibility(
+                    visible: properties.isSurpriseDate == 0,
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: InkWell(
+                        onTap: () {
+                          videoPlayerController.pause();
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return const SurpriseScreen();
+                            },
+                          );
+                        },
+                        child: SizedBox(
+                          width: 128,
+                          child: Gif(
+                            autostart: Autostart.loop,
+                            image: NetworkImage(
+                              properties.surpriseGifImage,
+                            ),
+                            fit: BoxFit.contain,
+                            controller: _gifController,
+                            useCache: true,
+                            onFetchCompleted: () {
+                              _gifController.reset();
+                              _gifController.forward();
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -204,16 +236,29 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
                                       ),
                                       child: InkWell(
                                         onTap: () {
-                                          videoFuture.value =
-                                              play(items[index].url);
-                                          setState(() {});
-                                          _scrollController.animateTo(
-                                            _scrollController
-                                                .position.minScrollExtent,
-                                            curve: Curves.easeOut,
-                                            duration: const Duration(
-                                                milliseconds: 400),
-                                          );
+                                          if (properties.isSurpriseDate == 0 &&
+                                              !isSurpriseSeen) {
+                                            showDialog(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return const SurpriseScreen();
+                                              },
+                                            );
+                                            setState(() {
+                                              isSurpriseSeen = true;
+                                            });
+                                          } else {
+                                            videoFuture.value =
+                                                play(items[index].url);
+                                            setState(() {});
+                                            _scrollController.animateTo(
+                                              _scrollController
+                                                  .position.minScrollExtent,
+                                              curve: Curves.easeOut,
+                                              duration: const Duration(
+                                                  milliseconds: 400),
+                                            );
+                                          }
                                         },
                                         child: Container(
                                           height: 140,
