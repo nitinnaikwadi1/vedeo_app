@@ -29,7 +29,7 @@ class _SurpriseScreenState extends State<SurpriseScreen>
     WidgetsBinding.instance.addObserver(this);
     setAppBackThemeImg();
     surpriseMusicPlayer = AudioPlayer();
-    surpriseMusicPlayer.setUrl(
+    surpriseMusicPlayer.setAsset(
       properties.surpriseTuneAudio,
     );
     surpriseMusicPlayer.play();
